@@ -12,6 +12,7 @@ NOTE PINS clk : C1 : in*
 NOTE PINS button_four[0] : L14 : in*
 NOTE PINS button_four[1] : M13 : in*
 NOTE PINS button_four[2] : M14 : in*
+NOTE PINS button_four[3] : N14 : in*
 NOTE PINS COLandROW[0] : N6 : in*
 NOTE PINS COLandROW[1] : P6 : in*
 NOTE PINS COLandROW[2] : N5 : in*
