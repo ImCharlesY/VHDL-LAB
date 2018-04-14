@@ -1,0 +1,41 @@
+rvl_alias "sec" "sec";
+BLOCK RESETPATHS;
+BLOCK ASYNCPATHS;
+
+LOCATE COMP "clk" SITE "C1" ;
+LOCATE COMP "button[0]" SITE "L14" ;
+LOCATE COMP "button[1]" SITE "N14" ;
+LOCATE COMP "secdisplay" SITE "P9" ;
+
+LOCATE COMP "modedisplay[3]" SITE "N13" ;
+LOCATE COMP "modedisplay[2]" SITE "M12" ;
+LOCATE COMP "modedisplay[1]" SITE "P12" ;
+LOCATE COMP "modedisplay[0]" SITE "M11" ;
+
+LOCATE COMP "trafficLights[5]" SITE "M2" ;
+LOCATE COMP "trafficLights[4]" SITE "P2" ;
+LOCATE COMP "trafficLights[3]" SITE "N2" ;
+LOCATE COMP "trafficLights[2]" SITE "M3" ;
+LOCATE COMP "trafficLights[1]" SITE "P4" ;
+LOCATE COMP "trafficLights[0]" SITE "N3" ;
+
+LOCATE COMP "digitdisplay[17]" SITE "A10" ;
+LOCATE COMP "digitdisplay[16]" SITE "C11" ;
+LOCATE COMP "digitdisplay[15]" SITE "F2" ;
+LOCATE COMP "digitdisplay[14]" SITE "E1" ;
+LOCATE COMP "digitdisplay[13]" SITE "E2" ;
+LOCATE COMP "digitdisplay[12]" SITE "A9" ;
+LOCATE COMP "digitdisplay[11]" SITE "B9" ;
+LOCATE COMP "digitdisplay[10]" SITE "F1" ;
+LOCATE COMP "digitdisplay[9]" SITE "C9" ;
+LOCATE COMP "digitdisplay[8]" SITE "C12" ;
+LOCATE COMP "digitdisplay[7]" SITE "B14" ;
+LOCATE COMP "digitdisplay[6]" SITE "J1" ;
+LOCATE COMP "digitdisplay[5]" SITE "H1" ;
+LOCATE COMP "digitdisplay[4]" SITE "H2" ;
+LOCATE COMP "digitdisplay[3]" SITE "B12" ;
+LOCATE COMP "digitdisplay[2]" SITE "A11" ;
+LOCATE COMP "digitdisplay[1]" SITE "K1" ;
+LOCATE COMP "digitdisplay[0]" SITE "A12" ;
+
+BLOCK JTAGPATHS;
