@@ -19,7 +19,7 @@
 		
 		din:out std_logic;		--data stream to 595
 		sck:out std_logic;		--595 shift clock
-		rck:out std_logic;		--595 output pulse
+		rck:out std_logic		--595 output pulse
 	);
  end electricalClock;
  
@@ -39,9 +39,9 @@ signal down_key_state:std_logic;	--the state of down key(after sampling)
 signal hL:integer range 0 to 9;		--the lower digit of hour
 signal hH:integer range 0 to 2;		--the higher digit of hour
 signal mL:integer range 0 to 9;		--the lower digit of minute
-signal mH:integer range 0 to 6;		--the higher digit of minute
+signal mH:integer range 0 to 5;		--the higher digit of minute
 signal sL:integer range 0 to 9;		--the lower digit of second
-signal sH:integer range 0 to 6;		--the higher digit of second
+signal sH:integer range 0 to 5;		--the higher digit of second
 
 --the control code sent to 595
 --Each segment requires 16bit serial code:
@@ -57,7 +57,7 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
  port(
 	clk:in std_logic;
 	rst:in std_logic;
-	clk_out:out std_logic;
+	clk_out:out std_logic
  );
  end component clk_div;
  
@@ -85,11 +85,22 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	hL:out integer range 0 to 9;		
 	hH:out integer range 0 to 2;		
 	mL:out integer range 0 to 9;		
-	mH:out integer range 0 to 6;		
+	mH:out integer range 0 to 5;		
 	sL:out integer range 0 to 9;		
-	sH:out integer range 0 to 6;		
+	sH:out integer range 0 to 5	
 );
  end component timer;
+ 
+ --component for mode Controller
+ component modeCtrler is 
+ port (
+	clk:in std_logic;
+	rst:in std_logic;			  
+	modekey:in std_logic;
+	mode:out integer range 0 to 3;
+	modedisplay:out std_logic_vector(3 downto 0)
+ );
+ end component modeCtrler;
  
  --component for time encoder for 595
  component timeencoder
@@ -97,16 +108,16 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	hL:in integer range 0 to 9;		
 	hH:in integer range 0 to 2;		
 	mL:in integer range 0 to 9;		
-	mH:in integer range 0 to 6;		
+	mH:in integer range 0 to 5;		
 	sL:in integer range 0 to 9;		
-	sH:in integer range 0 to 6;	
+	sH:in integer range 0 to 5;	
 	
-	ctrlcode595:out std_logic_vector(95 downto 0);
+	ctrlcode595:out std_logic_vector(95 downto 0)
 );
  end component timeencoder;
  
  --component for sending data to 595
-  component dataTo595
+ component dataTo595
  port(
 	clk:in std_logic;
 	rst:in std_logic;
@@ -115,7 +126,7 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	
 	din:out std_logic;
 	sck:out std_logic;
-	rck:out std_logic;
+	rck:out std_logic
 );
  end component dataTo595;
  
@@ -124,13 +135,16 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
  begin
  
 	--utilize clock divider: generate 1s clock
-	secGen:clk_div PORT MAP (clk,rst,sec);
+	secGen:clk_div PORT MAP (clk,rst_key_state,sec);
 	
 	--utilize key sampler
-	rstkey:CycleSampler PORT MAP (clk,rst_key,rst_key_state);
+	rstkey:CycleSampler PORT MAP (clk,rst_key_state,rst_key_state);
 	modekey:CycleSampler PORT MAP (clk,mode_key,mode_key_state);
 	upkey:CycleSampler PORT MAP (clk,up_key,up_key_state);
 	downkey:CycleSampler PORT MAP (clk,down_key,down_key_state);
+	
+	--utilize mode controller
+	controller: modeCtrler PORT MAP (clk,rst_key_state,mode_key_state,mode,modedisplay);
 	
 	--utilize timer
 	tm:timer PORT MAP (clk,sec,rst_key_state,mode,up_key_state,down_key_state,hL,hH,mL,mH,sL,sH);
