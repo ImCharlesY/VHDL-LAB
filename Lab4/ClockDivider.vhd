@@ -5,15 +5,15 @@
   --this entity implements clock divider
   --generating 1sec clock
   
- entity clk_div is
+ entity ClockDivider is
  port(
 	clk:in std_logic;		--12MHz clock
 	rst:in std_logic;		--the state of reset key(after sampling)
 	clk_out:out std_logic	--1Hz clock
  );
- end clk_div;
+ end ClockDivider;
  
- architecture secgen of clk_div is
+ architecture secgen of ClockDivider is
  
  begin
 	process(clk,rst)

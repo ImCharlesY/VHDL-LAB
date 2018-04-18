@@ -53,13 +53,13 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 
  -----------------------Declare Components---------------------------
  --component for clock divider
- component clk_div
+ component ClockDivider
  port(
 	clk:in std_logic;
 	rst:in std_logic;
 	clk_out:out std_logic
  );
- end component clk_div;
+ end component ClockDivider;
  
  --component for key sampler
  component CycleSampler
@@ -71,7 +71,7 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
  end component CycleSampler;
  
  --component for Timer
- component timer
+ component Timer
  port(
   	clk:in std_logic;
 	sec:in std_logic;
@@ -89,10 +89,10 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	sL:out integer range 0 to 9;		
 	sH:out integer range 0 to 5	
 );
- end component timer;
+ end component Timer;
  
  --component for mode Controller
- component modeCtrler is 
+ component ModeCtrler is 
  port (
 	clk:in std_logic;
 	rst:in std_logic;			  
@@ -100,10 +100,10 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	mode:out integer range 0 to 3;
 	modedisplay:out std_logic_vector(3 downto 0)
  );
- end component modeCtrler;
+ end component ModeCtrler;
  
  --component for time encoder for 595
- component timeencoder
+ component TimeEncoder
  port(
 	hL:in integer range 0 to 9;		
 	hH:in integer range 0 to 2;		
@@ -114,7 +114,7 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	
 	ctrlcode595:out std_logic_vector(95 downto 0)
 );
- end component timeencoder;
+ end component TimeEncoder;
  
  --component for sending data to 595
  component dataTo595
@@ -135,7 +135,7 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
  begin
  
 	--utilize clock divider: generate 1s clock
-	secGen:clk_div PORT MAP (clk,rst_key_state,sec);
+	secGen:ClockDivider PORT MAP (clk,rst_key_state,sec);
 	
 	--utilize key sampler
 	rstkey:CycleSampler PORT MAP (clk,rst_key_state,rst_key_state);
@@ -144,13 +144,13 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	downkey:CycleSampler PORT MAP (clk,down_key,down_key_state);
 	
 	--utilize mode controller
-	controller: modeCtrler PORT MAP (clk,rst_key_state,mode_key_state,mode,modedisplay);
+	controller: ModeCtrler PORT MAP (clk,rst_key_state,mode_key_state,mode,modedisplay);
 	
 	--utilize timer
-	tm:timer PORT MAP (clk,sec,rst_key_state,mode,up_key_state,down_key_state,hL,hH,mL,mH,sL,sH);
+	tm:Timer PORT MAP (clk,sec,rst_key_state,mode,up_key_state,down_key_state,hL,hH,mL,mH,sL,sH);
 	
 	--utilize time encoder
-	te:timeencoder PORT MAP (hL,hH,mL,mH,sL,sH,ctrlcode595);
+	te:TimeEncoder PORT MAP (hL,hH,mL,mH,sL,sH,ctrlcode595);
 	
 	--utilize dataTo595 module
 	dt:dataTo595 PORT MAP (clk,rst_key_state,ctrlcode595,din,sck,rck);

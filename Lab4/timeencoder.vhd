@@ -5,7 +5,7 @@
   --this entity implements clock divider
   --generating 1sec clock
   
- entity timeencoder is
+ entity TimeEncoder is
  port(
 	hL:in integer range 0 to 9;		
 	hH:in integer range 0 to 2;		
@@ -20,9 +20,9 @@
 	--6 segments, so the total ctrl code is 16*6=96bits
 	ctrlcode595:out std_logic_vector(95 downto 0)
  );
- end timeencoder;
+ end TimeEncoder;
  
- architecture encoder of timeencoder is
+ architecture encoder of TimeEncoder is
 ------------------Constant Table Declaration---------------
 type TwoDim_Array is array(natural range <>) of std_logic_vector(7 downto 0);		--define 2D array
 
