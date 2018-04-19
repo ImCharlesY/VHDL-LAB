@@ -26,10 +26,11 @@
 		if (rst='1') then	--asynchronous reset
 			moderec<=0;
 		elsif (falling_edge(modekey)) then
-			moderec<=moderec+1;
-		end if;
-		if (moderec>3) then
-			moderec<=0;
+			if (moderec=3) then
+				moderec<=0;
+			else
+				moderec<=moderec+1;
+			end if;
 		end if;
 	end process;
 	

@@ -17,6 +17,8 @@
 		
 		modedisplay:out std_logic_vector(3 downto 0);  --using 4 leds to display the mode
 		
+		secDisp:out std_logic;
+		
 		din:out std_logic;		--data stream to 595
 		sck:out std_logic;		--595 shift clock
 		rck:out std_logic		--595 output pulse
@@ -130,15 +132,15 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 );
  end component dataTo595;
  
- -----------------------End Components Declaration------------------------
+ ---------------------End Components Declaration------------------------
  
  begin
  
 	--utilize clock divider: generate 1s clock
-	secGen:ClockDivider PORT MAP (clk,rst_key_state,sec);
-	
+	secondGen:ClockDivider PORT MAP (clk,rst_key_state,sec);
+
 	--utilize key sampler
-	rstkey:CycleSampler PORT MAP (clk,rst_key_state,rst_key_state);
+	rstkey:CycleSampler PORT MAP (clk,rst_key,rst_key_state);
 	modekey:CycleSampler PORT MAP (clk,mode_key,mode_key_state);
 	upkey:CycleSampler PORT MAP (clk,up_key,up_key_state);
 	downkey:CycleSampler PORT MAP (clk,down_key,down_key_state);
@@ -154,5 +156,13 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	
 	--utilize dataTo595 module
 	dt:dataTo595 PORT MAP (clk,rst_key_state,ctrlcode595,din,sck,rck);
- 
+	
+	process(clk)
+	begin
+		if (rising_edge(clk)) then
+			secDisp<=not(sec);
+			null;
+		end if;
+	end process;
+	
  end behavior;

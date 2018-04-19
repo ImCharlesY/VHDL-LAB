@@ -14,22 +14,21 @@
  end ClockDivider;
  
  architecture secgen of ClockDivider is
- 
+ signal seccnt:integer:=0;		--counter
  begin
 	process(clk,rst)
-		variable seccnt:integer:=0;		--counter
 	begin
 		if (rst='1') then	--asynchronous reset
-			seccnt:=0;
+			seccnt<=0;
 			clk_out<='0';
 		elsif (rising_edge(clk)) then
-			seccnt:=seccnt+1;
+			seccnt<=seccnt+1;
 		end if;
 		if (seccnt=6000000) then
 			clk_out<='0';						
 		elsif (seccnt=12000000) then
 			clk_out<='1';					
-			seccnt:=0;	
+			seccnt<=0;	
 		end if;
 	end process;
  end secgen;

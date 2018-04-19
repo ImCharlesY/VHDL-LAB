@@ -36,12 +36,19 @@ constant segmentdecode:TwoDim_Array(0 to 16):=(		--decoder fot each num, 16 is o
 "11111110","11110110","11101110","00111110",
 "10011100","01111010","10011110","10001110",
 "00000000");
+
+constant segmentdecode_dp:TwoDim_Array(0 to 16):=(		--decoder fot each num, 16 is off, lighten the digit point
+"11111101","01100001","11011011","11110011",
+"01100111","10110111","10111111","11100001",
+"11111111","11110111","11101111","00111111",
+"10011101","01111011","10011111","10001111",
+"00000000");
 ---------------------End Table Declaration-----------------
  
  begin
  --Get all code and combine them into a series code as ctrlcode595
 	--for hour low
-	ctrlcode595(7 downto 0)<=segmentdecode(hL);
+	ctrlcode595(7 downto 0)<=segmentdecode_dp(hL);
 	ctrlcode595(15 downto 8)<=enDig(1);
 	
 	--for hour high
@@ -49,7 +56,7 @@ constant segmentdecode:TwoDim_Array(0 to 16):=(		--decoder fot each num, 16 is o
 	ctrlcode595(31 downto 24)<=enDig(0);
 	
 	--for minute low
-	ctrlcode595(39 downto 32)<=segmentdecode(mL);
+	ctrlcode595(39 downto 32)<=segmentdecode_dp(mL);
 	ctrlcode595(47 downto 40)<=enDig(3);
 	
 	--for minute high

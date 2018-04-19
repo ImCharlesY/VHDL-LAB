@@ -1,0 +1,18 @@
+rvl_alias "clk" "clk";
+BLOCK RESETPATHS;
+BLOCK ASYNCPATHS;
+
+LOCATE COMP "clk" SITE "C1" ;
+LOCATE COMP "rst_key" SITE "L14" ;
+LOCATE COMP "sck" SITE "J2" ;
+LOCATE COMP "rck" SITE "H3" ;
+LOCATE COMP "din" SITE "G3" ;
+LOCATE COMP "mode_key" SITE "M13" ;
+LOCATE COMP "up_key" SITE "M14" ;
+LOCATE COMP "down_key" SITE "N14" ;
+LOCATE COMP "modedisplay[0]" SITE "N13" ;
+LOCATE COMP "modedisplay[1]" SITE "M12" ;
+LOCATE COMP "modedisplay[2]" SITE "P12" ;
+LOCATE COMP "modedisplay[3]" SITE "M11" ;
+
+LOCATE COMP "secDisp" SITE "P9";BLOCK JTAGPATHS;

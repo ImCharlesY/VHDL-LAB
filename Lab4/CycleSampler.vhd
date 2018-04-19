@@ -15,6 +15,7 @@
  
  architecture CycleSample of CycleSampler is
  
+ signal keysamplerpulsecnt:integer:=0;		--counter
  signal keysamplerpulse:std_logic;	--scan clock pulse for key sampler
  signal keystore:std_logic_vector(2 downto 0);	--store btn state: 0-current,1-previous,2-before last
  
@@ -22,16 +23,15 @@
 	------------------------The following implements key debounce------------------------
 	----This process divide the 12MHz clock into 240kHz, generating a pulse per 20ms
 	process(clk)
-		variable keysamplerpulsecnt:integer:=0;		--counter
 	begin
 		if (rising_edge(clk)) then
-			keysamplerpulsecnt:=keysamplerpulsecnt+1;
+			keysamplerpulsecnt<=keysamplerpulsecnt+1;
 		end if;
 		if (keysamplerpulsecnt<240000) then
 			keysamplerpulse<='0';						
 		else
 			keysamplerpulse<='1';						--generate a pulse
-			keysamplerpulsecnt:=0;						--clear cnt
+			keysamplerpulsecnt<=0;						--clear cnt
 		end if;
 	end process;
 	
