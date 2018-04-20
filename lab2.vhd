@@ -18,7 +18,7 @@ port(
 end entity PWM;
 
 architecture behavior of PWM is
-signal clk0£ºstd_logic:='0';
+signal clk0ï¼šstd_logic:='0';
 signal cnt1: integer 0 to 8000:=0;
 signal cnt2: integer 0 to 8000:=0;
 signal cycle_pulse: integer 0 to 3;
@@ -26,7 +26,7 @@ signal duty_pulse: integer 0 to 3;
 signal cycle: integer 1000 to 8000:=1000;
 begin
 
-------frequency division£¬clk0:10kHz
+----frequency divisionï¼Œclk0:10kHz
 process(clk)
 variable count0: integer range 0 to 600;
 begin
@@ -34,11 +34,12 @@ begin
         if (count0=600) then
 	        clk0 <= not clk0;
 		    count0:=0;
-		    else count0:=count0+1£»
+		    else count0:=count0+1ï¼›
 		 end if;
 	 end if;
 end process;
-----generate ¾â³Ý²¨cnt1------
+
+----generateé”¯é½¿æ³¢cnt1------
 process(clk0,rst_n,duty_pulse,cycle_pulse)
 signal dt: integer 10 to 80:=10;
 begin 
@@ -59,7 +60,7 @@ begin
 	 end if;
 end process;
 		
-----generate triangle output cnt2
+--generate triangle output cnt2
 
 process(clk0,rst_n,cycle_pulse)
 variable direction: std_logic;
@@ -97,13 +98,13 @@ begin
 	end if;
 end process;
 
-----Í¨¹ý¼üÅÌ¿ØÖÆºôÎüµÆ±ä»¯ËÙ¶È
-----key_menu¿ØÖÆmenu_state ¿ØÖÆÖÜÆÚºÍÂö¿íµ÷½ÚÄ£Ê½µÄÇÐ»»('0'ÎªÖÜÆÚ£¬'1'ÎªÂö¿í£©
-----key_up ¿ØÖÆÖÜÆÚ/Âö¿í²ÎÊýÔö¼Ó
-----key_down ¿ØÖÆÖÜÆÚ¡¢Âö¿í²ÎÊý¼õÐ¡
-----ÒªÊä³ömenu_state£¨buffer£©ºÍ pulse_out(out)
+----é€šè¿‡é”®ç›˜æŽ§åˆ¶å‘¼å¸ç¯å˜åŒ–é€Ÿåº¦
+----key_menuæŽ§åˆ¶menu_state æŽ§åˆ¶å‘¨æœŸå’Œè„‰å®½è°ƒèŠ‚æ¨¡å¼çš„åˆ‡æ¢('0'ä¸ºå‘¨æœŸï¼Œ'1'ä¸ºè„‰å®½ï¼‰
+----key_up æŽ§åˆ¶å‘¨æœŸ/è„‰å®½å‚æ•°å¢žåŠ 
+----key_down æŽ§åˆ¶å‘¨æœŸã€è„‰å®½å‚æ•°å‡å°
+----è¦è¾“å‡ºmenu_stateï¼ˆbufferï¼‰å’Œ pulse_out(out)
 
-----ÇÐ»»Ä£Ê½
+----åˆ‡æ¢æ¨¡å¼
 process(key_menu,rst_n)
 begin
     if(rst_n='1') then
@@ -142,10 +143,7 @@ begin
 			end if;
 		end if;
 end process;
-
----pulse_out½ÓLED8£¬ÊýÂë¹ÜÁÁÒªÊäÈë0
-
-
+			
 end architecture behavior;
 
 
