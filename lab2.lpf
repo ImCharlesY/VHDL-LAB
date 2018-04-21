@@ -3,6 +3,7 @@ BLOCK ASYNCPATHS;
 
 locate comp "clk" site C1;
 locate comp "pulse_out" site P9;
+locate comp "display" site G3;
 locate comp "key_menu" site L14;
-locate comp "key_up" site N14;
-locate comp "key_down" site C9;
+locate comp "key_up" site M14;
+locate comp "key_down" site N14;
