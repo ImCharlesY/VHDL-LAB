@@ -16,76 +16,60 @@ entity Key_Table is
 end Key_Table;
 ----------------------------------------------------------------
 architecture Key_Table_arch of Key_Table is
-signal clk_cnt:		integer 	range 0 to 11999	;--12MHz,1ms
+signal clk_cnt:		integer 	range 0 to 12000	;--12MHz,1ms
 signal get_clk:		integer 	range 0 to 200		;
-signal overflow:	boolean 	:= false 			;
-signal KEY:			bit_vector(4 downto 0)			;
+signal overflow:	boolean 	:= true 			;
 signal CaR_cache: 	std_logic_vector(7 downto 0)	;
 signal BTN_cache:	std_logic_vector(3 downto 0)	;
 begin
 	process(clk)
 	begin
-	if clk'event and clk = '1' then --1ms分频
-		clk_cnt <= clk_cnt + 1;
-		if clk_cnt = 11999 then
-			overflow <= true;
+	if clk'event and clk = '1' then --1ms分频	
+		if clk_cnt = 6000 then
+			overflow <= false;
+		elsif clk_cnt = 11999 then
 			clk_cnt <= 0;
+			overflow <= true;
 		end if;
+		clk_cnt <= clk_cnt + 1;
 	end if ;
-		
-	if overflow then
-		overflow <= false;
-		--键盘的延迟读取
+	end process;
+
+	process(overflow)
+	begin 
+	if overflow'event and overflow = true then
+		--键盘的延迟读?		
 		if CaR_cache /= COLandROW or BTN_cache /=button_four then 
 			CaR_cache <= COLandROW;
 			BTN_cache <= button_four;
 			get_clk <= 0;
 		elsif get_clk = 30 then
 			get_clk <= 0; 
-			case CaR_cache is
-				when "01110111" => KEY<="00001";
-				when "01111011" => KEY<="00010";
-				when "01111101" => KEY<="00011";
-				when "01111110" => KEY<="00100";
-				when "10110111" => KEY<="00101";
-				when "10111011" => KEY<="00110";
-				when "10111101" => KEY<="00111";
-				when "10111110" => KEY<="01000";
-				when "11010111" => KEY<="01001";
-				when "11011011" => KEY<="01010";
-				when "11011101" => KEY<="01011";
-				when "11011110" => KEY<="01100";
-				when "11100111" => KEY<="01101";
-				when "11101011" => KEY<="01110";
-				when "11101101" => KEY<="01111";
-				when "11101110" => KEY<="10000";
-				when others 	=> KEY<="00000";
+			case CaR_cache(0) is
+				when '0' =>a_to_g <= "1111110"; seg <= '0';--0
+				when '1' =>a_to_g <= "0110000"; seg <= '0';--1
+				--when "01110111" =>a_to_g <= "0110000"; seg <= '0';--1
+				--when "01111011" =>a_to_g <= "1101101"; seg <= '0';--2
+				--when "01111101" =>a_to_g <= "1111001"; seg <= '0';--3
+				--when "01111110" =>a_to_g <= "0110011"; seg <= '0';--4
+				--when "10110111" =>a_to_g <= "1011011"; seg <= '0';--5
+				--when "10111011" =>a_to_g <= "1011111"; seg <= '0';--6
+				--when "10111101" =>a_to_g <= "1110000"; seg <= '0';--7
+				--when "10111110" =>a_to_g <= "1111111"; seg <= '0';--8
+				--when "11010111" =>a_to_g <= "1111011"; seg <= '0';--9
+				--when "11011011" =>a_to_g <= "1110111"; seg <= '0';--a
+				--when "11011101" =>a_to_g <= "0011111"; seg <= '0';--b
+				--when "11011110" =>a_to_g <= "1001110"; seg <= '0';--c
+				--when "11100111" =>a_to_g <= "0111101"; seg <= '0';--d
+				--when "11101011" =>a_to_g <= "1001111"; seg <= '0';--e
+				--when "11101101" =>a_to_g <= "1000111"; seg <= '0';--f
+				--when "11101110" =>a_to_g <= "1111110"; seg <= '0';--0
+				--when others 	=>a_to_g <= "0000000"; seg <= '1';--NULL
 			end case;
 			led_four <= BTN_cache;
 		else 
 			get_clk<=get_clk+1;
 		end if;
-		--数码管的刷新
-		case KEY is
-			when "00001" => a_to_g <= "0110000"; seg <= '0';--1
-			when "00010" => a_to_g <= "1101101"; seg <= '0';--2
-			when "00011" => a_to_g <= "1111001"; seg <= '0';--3
-			when "00100" => a_to_g <= "0110011"; seg <= '0';--4
-			when "00101" => a_to_g <= "1011011"; seg <= '0';--5
-			when "00110" => a_to_g <= "1011111"; seg <= '0';--6
-			when "00111" => a_to_g <= "1110000"; seg <= '0';--7
-			when "01000" => a_to_g <= "1111111"; seg <= '0';--8
-			when "01001" => a_to_g <= "1111011"; seg <= '0';--9
-			when "01010" => a_to_g <= "1110111"; seg <= '0';--a
-			when "01011" => a_to_g <= "0011111"; seg <= '0';--b
-			when "01100" => a_to_g <= "1001110"; seg <= '0';--c
-			when "01101" => a_to_g <= "0111101"; seg <= '0';--d
-			when "01110" => a_to_g <= "1001111"; seg <= '0';--e
-			when "01111" => a_to_g <= "1000111"; seg <= '0';--f
-			when "10000" => a_to_g <= "1111110"; seg <= '0';--0
-			when "00000" => a_to_g <= "0000000"; seg <= '1';--NULL
-			when others  => NULL;
-		end case;
 	end if;
 	end process	;
 end	Key_Table_arch;
