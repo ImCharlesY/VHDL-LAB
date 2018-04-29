@@ -47,55 +47,58 @@
  signal sHRec1:integer range 0 to 5;		--record the value of second high
  
  ----Record last state of keys
+ signal sec_ls:std_logic;
  signal upkey_ls:std_logic;		--store the last state of up key
  signal downkey_ls:std_logic;	--store the last state of down key
 ---------------------End Signals Declaration-----------------	
 
  begin
 	----This process tests the change of 1Hz clock and the reset signal and mode, then counts in mode 0
-	process(sec,rst,mode)
+	process(clk,rst,mode)
 	begin
 		if (rst='1') then	--asynchronous reset
 			hLRec0<=0;hHRec0<=0;
 			mLRec0<=0;mHRec0<=0;
 			sLRec0<=0;sHRec0<=0;
-		elsif (falling_edge(sec)) then
-			case mode is
-				--Mode 0: Normal Timer
-				when 0=>
-					if (sLRec0=9) then	--seconds low carry
-						sLRec0<=0;
-						if (sHRec0=5) then	--seconds high carry
-							sHRec0<=0;
-							if (mLRec0=9) then	--minutes low carry
-								mLRec0<=0;
-								if (mHRec0=5) then	--minutes high carry
-									mHRec0<=0;
-									if (hLRec0=3 and hHRec0=2) then --reset state
-										hLRec0<=0; hHRec0<=0;
-									elsif (hLRec0=9) then --hours low carry
-										hLRec0<=0; hHRec0<=hHRec0+1;
-									else	--hours low no carry
-										hLRec0<=hLRec0+1;
+		elsif (rising_edge(clk)) then
+			if (sec_ls='0' and sec='1') then
+				case mode is
+					--Mode 0: Normal Timer
+					when 0=>
+						if (sLRec0=9) then	--seconds low carry
+							sLRec0<=0;
+							if (sHRec0=5) then	--seconds high carry
+								sHRec0<=0;
+								if (mLRec0=9) then	--minutes low carry
+									mLRec0<=0;
+									if (mHRec0=5) then	--minutes high carry
+										mHRec0<=0;
+										if (hLRec0=3 and hHRec0=2) then --reset state
+											hLRec0<=0; hHRec0<=0;
+										elsif (hLRec0=9) then --hours low carry
+											hLRec0<=0; hHRec0<=hHRec0+1;
+										else	--hours low no carry
+											hLRec0<=hLRec0+1;
+										end if;
+									else	--minutes high no carry
+										mHRec0<=mHRec0+1;
 									end if;
-								else	--minutes high no carry
-									mHRec0<=mHRec0+1;
+								else	--minutes low no carry
+									mLRec0<=mLRec0+1;
 								end if;
-							else	--minutes low no carry
-								mLRec0<=mLRec0+1;
+							else	--seconds high no carry
+								sHRec0<=sHRec0+1;
 							end if;
-						else	--seconds high no carry
-							sHRec0<=sHRec0+1;
+						else	--seconds low no carry
+							sLRec0<=sLRec0+1;
 						end if;
-					else	--seconds low no carry
-						sLRec0<=sLRec0+1;
-					end if;
-				--Other
-				when others=>
-					hLRec0<=hLRec1;hHRec0<=hHRec1;
-					mLRec0<=mLRec1;mHRec0<=mHRec1;
-					sLRec0<=sLRec1;sHRec0<=sHRec1;
-			end case;
+					--Other
+					when others=>
+						hLRec0<=hLRec1;hHRec0<=hHRec1;
+						mLRec0<=mLRec1;mHRec0<=mHRec1;
+						sLRec0<=sLRec1;sHRec0<=sHRec1;
+				end case;
+			end if;
 		end if;
 	end process;
 	
@@ -194,6 +197,7 @@
 		if (rising_edge(clk)) then
 			upkey_ls<=upkey;		--if up key pressed, upkey_ls = '1' and upkey = '0'
 			downkey_ls<=downkey;    --if down key pressed, downkey_ls = '1' and downkey = '0'
+			sec_ls<=sec;
 		end if;
 	end process;
 	

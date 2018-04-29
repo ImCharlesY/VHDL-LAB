@@ -29,7 +29,7 @@
  
  architecture behavior of electricalClock is
  -----------------------Signals Declaration-------------------
-signal mode:integer:=0;		--current mode
+signal mode:integer;		--current mode
 
 signal sec:std_logic;   --1s clock
 
@@ -161,7 +161,6 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	begin
 		if (rising_edge(clk)) then
 			secDisp<=not(sec);
-			null;
 		end if;
 	end process;
 	

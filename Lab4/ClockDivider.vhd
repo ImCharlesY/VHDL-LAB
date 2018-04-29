@@ -15,20 +15,20 @@
  
  architecture secgen of ClockDivider is
  signal seccnt:integer:=0;		--counter
+ signal sec:std_logic:='0';
  begin
 	process(clk,rst)
 	begin
 		if (rst='1') then	--asynchronous reset
 			seccnt<=0;
-			clk_out<='0';
+			sec<='0';
 		elsif (rising_edge(clk)) then
 			seccnt<=seccnt+1;
-		end if;
-		if (seccnt=6000000) then
-			clk_out<='0';						
-		elsif (seccnt=12000000) then
-			clk_out<='1';					
-			seccnt<=0;	
+			if (seccnt=6000000) then
+				sec<=not sec;
+				seccnt<=0;	
+			end if;
 		end if;
 	end process;
+	clk_out<=sec;
  end secgen;

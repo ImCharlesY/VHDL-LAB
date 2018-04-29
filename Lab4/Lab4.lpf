@@ -15,4 +15,4 @@ LOCATE COMP "modedisplay[1]" SITE "M12" ;
 LOCATE COMP "modedisplay[2]" SITE "P12" ;
 LOCATE COMP "modedisplay[3]" SITE "M11" ;
 
-LOCATE COMP "secDisp" SITE "P9";BLOCK JTAGPATHS;
+LOCATE COMP "secDisp" SITE "P9";

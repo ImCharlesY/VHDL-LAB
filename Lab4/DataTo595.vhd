@@ -24,7 +24,8 @@
  architecture Series2Parallel of dataTo595 is
 ---------------------- Signals Declaration-------------------
  signal shift_clock_cnt:integer:=0;		--counter
- signal shift_clock:std_logic;
+ signal shift_clock:std_logic:='1';
+ signal shift_clock_ls:std_logic;
  signal shift_cnt:integer range 0 to 15;
  signal parallout:std_logic;		--parallel out pulse
  
@@ -55,27 +56,35 @@
 			shift_clock<='1';
 		elsif (rising_edge(clk)) then
 			shift_clock_cnt<=shift_clock_cnt+1;
-		end if;
-		if (shift_clock_cnt=2) then
-			shift_clock<='0';						
-		elsif (shift_clock_cnt=4) then
-			shift_clock<='1';					
-			shift_clock_cnt<=0;	
-		end if;
+			if (shift_clock_cnt=2) then
+				shift_clock<=not shift_clock;					
+				shift_clock_cnt<=0;	
+			end if;
+		end if;	
 	end process;
 	sck<=shift_clock;
+
+	----This process record last state of shift clock
+	process(clk)
+	begin
+		if(rising_edge(clk)) then
+			shift_clock_ls<=shift_clock;
+		end if;
+	end process;
 	
 	----This process counts the times of shift at rising edge of shift_clk
 	----When shift_cnt is n, it means we have already shift n digits to 595
-	process(shift_clock,rst)
+	process(clk,rst)
 	begin
 		if (rst='1') then
 			shift_cnt<=0;
-		elsif (rising_edge(shift_clock)) then
-			if (shift_cnt=15) then
-				shift_cnt<=0;
-			else
-				shift_cnt<=shift_cnt+1;
+		elsif (rising_edge(clk)) then
+			if (shift_clock='1' and shift_clock_ls='0') then
+				if (shift_cnt=15) then
+					shift_cnt<=0;
+				else
+					shift_cnt<=shift_cnt+1;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -98,11 +107,12 @@
 	----This process writes a digit to din at falling edge of shift_clk
 	----and the rising edge right after it will actually shift the certain digit into 595
 	----then the counting process above will count a shift
-	process(shift_clock,rst)
+	process(clk,rst)
 	begin
 		if (rst='1') then
 			din<='0';
-		elsif (falling_edge(shift_clock)) then
+		elsif (rising_edge(clk)) then
+			if (shift_clock='0' and shift_clock_ls='1') then
 				case codeP is
 					when 0=> din<=codeP0(shift_cnt);
 					when 1=> din<=codeP1(shift_cnt);
@@ -112,11 +122,12 @@
 					when 5=> din<=codeP5(shift_cnt);
 					when others=> null;
 				end case;
-			if (shift_cnt=15) then	--finish one part, begin next part
-				if (codeP=5) then
-					codeP<=0;
-				else
-					codeP<=codeP+1;
+				if (shift_cnt=15) then	--finish one part, begin next part
+					if (codeP=5) then
+						codeP<=0;
+					else
+						codeP<=codeP+1;
+					end if;
 				end if;
 			end if;
 		end if;

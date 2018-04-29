@@ -16,22 +16,9 @@ architecture behav of dataTo595_tb is
 	din:out std_logic;	--data stream to 595
 	sck:out std_logic;	--595 shift clock
 	rck:out std_logic	--595 output pulse
-	--rst: in std_logic;--计数使能(高电平有效)
-	
-	--clk: in std_logic;
-	--clear: in std_logic;--清空595寄存器内容，熄灭数码管（低电平清零）
-	
-	--serialCode: in std_logic_vector (95 downto 0);--32bit serial code 
-	----16bit serialCode:bit0 DP ;bit 1-7 G to A [high active];bit 8 9 don't care; 10 - 15 digit6 - digit 1[low active]
- 
-
-	--ser: out std_logic;
-	--sck: out std_logic;
-	--rck: out std_logic
 	);
  end component DataTo595;
  
- --signal rst2:std_logic:='1';
  signal clk1: std_logic:='0';	--12MHz clock	
  signal rst1: std_logic:='0';			--the state of reset key
  --signal ctrlcode5951:std_logic_vector(95 downto 0):="111111000111111101100000101111111101101011011111111100101110111101100110111101111011011011111011";
@@ -50,13 +37,6 @@ architecture behav of dataTo595_tb is
  begin
  
  EC:DataTo595 port map ( 
-	--rst=>rst2,
-	--clk=>clk1,
-	--clear=>rst1,
-	--serialCode=>ctrlcode5951,
-	--ser=>din1,
-	--sck=>sck1,
-	--rck=>rck1
 	clk=>clk1,
 	rst=>rst1,
 	ctrlcode595=>ctrlcode5951,
