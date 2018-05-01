@@ -2,30 +2,38 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity STEP_MXO2 is
+entity TrafficLights is
 	port(
 		clk:in std_logic;		--12MHz clock
-		button:in std_logic_vector(1 downto 0);		--state of buttons:0->mode btn;1->reset btn
+		rst:in std_logic;
+		modekey:in std_logic;
 		secdisplay:out std_logic;	--state of led which shows 1s clock
 		modedisplay:out std_logic_vector(3 downto 0);  --using 4 leds to display the mode
 		trafficLights:out std_logic_vector(5 downto 0);	--the ctrlword of two RGB LEDs
 		digitdisplay:out std_logic_vector(17 downto 0)  --the ctrlword of two segments
 	);
-end STEP_MXO2;
+end TrafficLights;
 
 
 
-architecture trafficlights of STEP_MXO2 is
+architecture trafficlights of TrafficLights is
 -----------------------Signals Declaration-------------------
-signal mode:integer:=0;		--current mode
+signal mode:integer;		--current mode
 
+signal seccnt:integer;
 signal sec:std_logic;   --1s clock
 
-signal keystate:std_logic_vector (1 downto 0);	--the state of 2 key(mode and reset)(after sampling)
+--key state after sampling
+signal rst_state:std_logic;
+signal modekey_state:std_logic;
+
+--last state of key or gate clock
+signal sec_ls:std_logic;
+signal modekey_state_ls:std_logic;
 
 type state is (RG,RY,GR,YR,YY,NN);		--for FSM
-signal prstate:state:=RG;		
-signal nxstate:state:=RY;
+signal prstate:state;		
+signal nxstate:state;
 
 constant delayMax:integer:=13;			--define delay time
 type OneDim_Array is array (0 to 3) of integer;
@@ -34,6 +42,7 @@ constant delayRY:OneDim_Array:=(3,3,3,0);
 constant delayGR:OneDim_Array:=(10,13,7,0);
 constant delayYR:OneDim_Array:=(3,3,3,0);
 signal delay:integer range 0 to delayMax;		--current state actual delay time according to mode
+signal delaycnt:integer;
 
 type TwoDim_Array is array(natural range <>) of std_logic_vector(17 downto 0);		--define 2D array
 constant segmentdecode:TwoDim_Array(0 to 15):=(								--decode of 0-15 for segments
@@ -47,25 +56,35 @@ constant segmentdecode:TwoDim_Array(0 to 15):=(								--decode of 0-15 for segm
 
  -----------------------Declare Components---------------------------
  --component for keys
- component key
+ component CycleSampler is 
  port(
-  	clk: in std_logic;
-	btnstate: in std_logic_vector (1 downto 0);	
-	keystate: out std_logic_vector (1 downto 0)
- );
- end component key;
+	clk: in std_logic;
+	btnstate: in std_logic;
+	keystate: out std_logic
+	);
+ end component CycleSampler;
  -----------------------End Components Declaration------------------------
 
 ---------------------PROCESS-------------------------
 begin
 	--utilize key sampler
-	ks: key PORT MAP (clk,button,keystate);
+	k0: CycleSampler PORT MAP (clk,rst,rst_state);
+	k1: CycleSampler PORT MAP (clk,modekey,modekey_state);
+	
+	----This process records last state of sec to prevent using gate clock
+	process(clk)
+	begin
+		if (rising_edge(clk)) then
+			sec_ls<=sec;
+			modekey_state_ls<=modekey_state;
+		end if;
+	end process;
 	
 	----This process is the top process. It displays the mode
 	process(clk)
 	begin
 		if (rising_edge(clk)) then
-			secdisplay<=not(sec);					--display 1s clock using a led
+			secdisplay<=not(sec);					--display 1s clock using a led	
 			case mode is
 				when 0=>
 					modedisplay<="0111";				--output state of four leds showing current mode
@@ -84,52 +103,51 @@ begin
 	
 	----This process divide the 12MHz clock into 1Hz, generating 1s clock
 	process(clk)
-		variable seccnt:integer:=0;		--counter
 	begin
 		if (rising_edge(clk)) then
-			seccnt:=seccnt+1;
-		end if;
-		if (seccnt=6000000) then
-			sec<='1';						--go high
-		elsif (seccnt=12000000) then
-			sec<='0';
-			seccnt:=0;						--clear cnt
+			seccnt<=seccnt+1;
+			if (seccnt=6000000) then
+				sec<=not sec;
+				seccnt<=0;						--clear cnt
+			end if;
 		end if;
 	end process;
 
 	
 	----This process changes mode if key0 pressed
-	process(keystate(0),keystate(1))
+	process(clk,rst_state)
 	begin
-		if (keystate(1)='1') then		--If key1 pressed,reset
+		if (rst_state='1') then		--If key1 pressed,reset
 			mode<=0;
-		elsif (rising_edge(keystate(0))) then
-			mode<=mode+1;
-		end if;
-		if (mode>=4) then
-			mode<=0;
+		elsif (rising_edge(clk)) then
+			if (modekey_state='0' and modekey_state_ls='1') then
+				mode<=mode+1;
+			end if;
+			if (mode>=4) then
+				mode<=0;
+			end if;
 		end if;
 	end process;
 	
 	
 	------------------------The following implements FSM-----------------------------
 	----This process counts the delay and changes the state
-	process(sec,mode,keystate(1))
-		variable delaycnt:integer:=0;
+	process(clk,rst_state,delay)
 	begin
-		if (keystate(1)='1') then		--If key1 pressed,reset
+		if (rst_state='1') then		--If key1 pressed,reset
 			prstate<=RG;
-			delaycnt:=0;
-		elsif (rising_edge(sec)) then
-			delaycnt:=delaycnt+1;
-			if (delaycnt>=delay) then
-				prstate<=nxstate;
-				delaycnt:=0;
+			delaycnt<=0;
+		elsif (rising_edge(clk)) then
+			if (sec='1' and sec_ls='0') then
+				delaycnt<=delaycnt+1;
+				if (delaycnt>=delay) then
+					prstate<=nxstate;
+					delaycnt<=0;
+				end if;
 			end if;
 		end if;
-		digitdisplay<=segmentdecode(delay-delaycnt);	--display countdown
 	end process;
-	
+	digitdisplay<=segmentdecode(delay-delaycnt);	--display countdown
 	
 	----This process implements all state
 	process(prstate,mode)
@@ -177,7 +195,7 @@ begin
 					nxstate<=RG;
 				else 
 					nxstate<=NN;
-					delay<=1;
+					delay<=0;
 				end if;
 			when NN=>
 				trafficLights<="111111";

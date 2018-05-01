@@ -3,8 +3,8 @@ BLOCK RESETPATHS;
 BLOCK ASYNCPATHS;
 
 LOCATE COMP "clk" SITE "C1" ;
-LOCATE COMP "button[0]" SITE "L14" ;
-LOCATE COMP "button[1]" SITE "N14" ;
+LOCATE COMP "rst" SITE "L14" ;
+LOCATE COMP "modekey" SITE "N14" ;
 LOCATE COMP "secdisplay" SITE "P9" ;
 
 LOCATE COMP "modedisplay[3]" SITE "N13" ;

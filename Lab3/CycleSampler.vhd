@@ -15,41 +15,46 @@
  
  architecture CycleSample of CycleSampler is
  
+ signal keysamplerpulsecnt:integer:=0;		--counter
  signal keysamplerpulse:std_logic;	--scan clock pulse for key sampler
+ signal keysamplerpulse_ls:std_logic;
  signal keystore:std_logic_vector(2 downto 0);	--store btn state: 0-current,1-previous,2-before last
  
  begin
 	------------------------The following implements key debounce------------------------
 	----This process divide the 12MHz clock into 240kHz, generating a pulse per 20ms
 	process(clk)
-		variable keysamplerpulsecnt:integer:=0;		--counter
 	begin
 		if (rising_edge(clk)) then
-			keysamplerpulsecnt:=keysamplerpulsecnt+1;
-		end if;
-		if (keysamplerpulsecnt<240000) then
-			keysamplerpulse<='0';						
-		else
-			keysamplerpulse<='1';						--generate a pulse
-			keysamplerpulsecnt:=0;						--clear cnt
+			keysamplerpulsecnt<=keysamplerpulsecnt+1;
+			if (keysamplerpulsecnt=120000) then
+				keysamplerpulse<=not keysamplerpulse;						
+				keysamplerpulsecnt<=0;						--clear cnt
+			end if;
+		end if;	
+	end process;
+	
+	----This process records last state of sample clk
+	process(clk)
+	begin
+		if (rising_edge(clk)) then
+			keysamplerpulse_ls<=keysamplerpulse;
 		end if;
 	end process;
 	
-	
 	----This process samples (per 20ms) 3 times
-	process(keysamplerpulse)
+	process(clk)
 	begin
-		if (rising_edge(keysamplerpulse)) then
-			keystore(2)<=keystore(1);
-			keystore(1)<=keystore(0);
-			keystore(0)<=not btnstate;
+		if (rising_edge(clk)) then
+			if (keysamplerpulse='1' and keysamplerpulse_ls='0') then
+				keystore(2)<=keystore(1);
+				keystore(1)<=keystore(0);
+				keystore(0)<=not btnstate;
+			end if;
+			keystate<=keystore(0) and keystore(1) and keystore(2);	
 		end if;
-		keystate<=keystore(0) and keystore(1) and keystore(2);	
 	end process;
 	-------------------------------End key debounce--------------------------------
 	
 
  end CycleSample;
- 
- 
-
