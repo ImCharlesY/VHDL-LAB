@@ -19,6 +19,9 @@
 		
 		secDisp:out std_logic;
 		
+		PortA:in std_logic;		--output A of rotary encoder
+		PortB:in std_logic;		--output B of rotary encoder
+		
 		din:out std_logic;		--data stream to 595
 		sck:out std_logic;		--595 shift clock
 		rck:out std_logic		--595 output pulse
@@ -35,8 +38,10 @@ signal sec:std_logic;   --1s clock
 
 signal rst_key_state:std_logic;		--the state of rst key(after sampling)
 signal mode_key_state:std_logic;	--the state of mode key(after sampling)
-signal up_key_state:std_logic;	--the state of up key(after sampling)
+signal up_key_state:std_logic;		--the state of up key(after sampling)
 signal down_key_state:std_logic;	--the state of down key(after sampling)
+
+signal act_of_re:integer;			--action of rotary encoder: 0-no action; 1-clockwise; -1-anti-clockwise
 
 signal hL:integer range 0 to 9;		--the lower digit of hour
 signal hH:integer range 0 to 2;		--the higher digit of hour
@@ -84,6 +89,8 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	upkey:in std_logic;
 	downkey:in std_logic;
 	
+	act_of_re:in integer;	--action of rotary encoder: 0-no action; 1-clockwise; -1-anti-clockwise
+	
 	hL:out integer range 0 to 9;		
 	hH:out integer range 0 to 2;		
 	mL:out integer range 0 to 9;		
@@ -92,6 +99,17 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	sH:out integer range 0 to 5	
 );
  end component Timer;
+ 
+ --component for rotary encoder
+ component RotaryEncoder is
+ port(
+	clk:in std_logic;	--12MHz clock
+	PortA:in std_logic;	--A
+	PortB:in std_logic;	--B
+		
+	act:out integer		--scan result: 0-no action; 1-clockwise; -1-anti-clockwise
+ );
+ end component RotaryEncoder;
  
  --component for mode Controller
  component ModeCtrler is 
@@ -149,7 +167,10 @@ signal ctrlcode595:std_logic_vector(95 downto 0);
 	controller: ModeCtrler PORT MAP (clk,rst_key_state,mode_key_state,mode,modedisplay);
 	
 	--utilize timer
-	tm:Timer PORT MAP (clk,sec,rst_key_state,mode,up_key_state,down_key_state,hL,hH,mL,mH,sL,sH);
+	tm:Timer PORT MAP (clk,sec,rst_key_state,mode,up_key_state,down_key_state,act_of_re,hL,hH,mL,mH,sL,sH);
+	
+	--utilize rotary encoder
+	re:RotaryEncoder PORT MAP (clk,PortA,PortB,act_of_re);
 	
 	--utilize time encoder
 	te:TimeEncoder PORT MAP (hL,hH,mL,mH,sL,sH,ctrlcode595);

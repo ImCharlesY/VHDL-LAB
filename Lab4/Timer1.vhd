@@ -15,6 +15,8 @@
 	upkey:in std_logic;			--the state of up key(after sampling)
 	downkey:in std_logic;		--the state of down key(after sampling)
 	
+	act_of_re:in integer;	--action of rotary encoder: 0-no action; 1-clockwise; -1-anti-clockwise
+	
 	hL:out integer range 0 to 9;		
 	hH:out integer range 0 to 2;		
 	mL:out integer range 0 to 9;		
@@ -113,7 +115,7 @@
 			case mode is
 				--Mode 1: Setting Hour
 				when 1=>
-					if (upkey_ls='1' and upkey='0') then		--If up key pressed
+					if (act_of_re=1 or (upkey_ls='1' and upkey='0')) then		--If up key pressed
 						if (hLRec1=3 and hHRec1=2) then		--reset state
 							hLRec1<=0; hHRec1<=0;
 						elsif (hLRec1=9) then	--hours low carry
@@ -122,7 +124,7 @@
 						else	--hours low no carry
 							hLRec1<=hLRec1+1;
 						end if;
-					elsif (downkey_ls='1' and downkey='0') then --If down key pressed
+					elsif (act_of_re=-1 or (downkey_ls='1' and downkey='0')) then --If down key pressed
 						if (hLRec1=0 and hHRec1=0) then		--reset state
 							hLRec1<=3; hHRec1<=2;
 						elsif (hLRec1=0) then	--hours low carry
@@ -134,7 +136,7 @@
 					end if;
 				--Mode 2: Setting Minute
 				when 2=>
-					if (upkey_ls='1' and upkey='0') then		--If up key pressed
+					if (act_of_re=1 or (upkey_ls='1' and upkey='0')) then		--If up key pressed
 						if (mLRec1=9) then	--minutes low carry
 							mLRec1<=0;
 							if (mHRec1=5) then	--minutes high carry
@@ -145,7 +147,7 @@
 						else	--minutes low no carry
 							mLRec1<=mLRec1+1;
 						end if;
-					elsif (downkey_ls='1' and downkey='0') then --If down key pressed
+					elsif (act_of_re=-1 or (downkey_ls='1' and downkey='0')) then --If down key pressed
 						if (mLRec1=0) then	--minutes low carry
 							mLRec1<=9;
 							if (mHRec1=0) then	--minutes high carry
@@ -159,7 +161,7 @@
 					end if;
 				--Mode 3: Setting Second
 				when 3=>
-					if (upkey_ls='1' and upkey='0') then		--If up key pressed
+					if (act_of_re=1 or (upkey_ls='1' and upkey='0')) then		--If up key pressed
 						if (sLRec1=9) then	--seconds low carry
 							sLRec1<=0;
 							if (sHRec1=5) then	--seconds high carry
@@ -170,7 +172,7 @@
 						else	--seconds low no carry
 							sLRec1<=sLRec1+1;
 						end if;
-					elsif (downkey_ls='1' and downkey='0') then --If down key pressed
+					elsif (act_of_re=-1 or (downkey_ls='1' and downkey='0')) then --If down key pressed
 						if (sLRec1=0) then	--seconds low carry
 							sLRec1<=9;
 							if (sHRec1=0) then	--seconds high carry
