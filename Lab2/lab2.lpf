@@ -7,3 +7,5 @@ locate comp "display" site G3;
 locate comp "key_menu" site L14;
 locate comp "key_up" site M14;
 locate comp "key_down" site N14;
+locate comp "rst_n" site M13;
+locate comp "menu_state" site N13;
