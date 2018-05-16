@@ -1,6 +1,7 @@
  library ieee;                    
  use  ieee.std_logic_1164.all;     
  use  ieee.std_logic_unsigned.all; 
+ use work.my_data_types.all;
  
  ------------------------------------------
  ---- This is the top module of lab 6  ----
@@ -11,7 +12,7 @@
 	clk:in std_logic;		--12MHz clock
 	rst:in std_logic;
 	
-	dq:buffer std_logic;	--bus connecting step and DS18B20
+	DQ:inout std_logic;		--bus connecting step and DS18B20
 		
 	din:out std_logic;		--data stream to 595
 	sck:out std_logic;		--595 shift clock
@@ -23,10 +24,8 @@
  
  architecture behavior of TemperatureSensor is
  -----------------------Signals Declaration-------------------
- signal sample: std_logic_vector(7 downto 0);	-- sample value from DS18B20
- signal temp_sign: std_logic;	--1->negative;0->positive
- signal temp_int: integer;		--integer part of temperature
- signal temp_frac: integer;		--fractional part of temperature
+ signal sample: std_logic_vector(15 downto 0);	-- sample value from DS18B20
+ signal temp: rational_number(4 downto 0);
  
  --the control code sent to 595
  --Each segment requires 16bit serial code:
@@ -40,28 +39,25 @@
  --component for DS18B20
  component ComunicateWithB20
  port(
-	dq:buffer std_logic;
-	sample:out std_logic_vector(7 downto 0)
+	DQ:inout std_logic;
+	Data:out std_logic_vector(15 downto 0);
+	clk:in 	std_logic
  );
  end component ComunicateWithB20;
  
  --component for BIN2DEC
- component BIN2DEC
+ component ConvertToDecimal
  port(
-	bin_value:in std_logic_vector(7 downto 0);
-	sign:out std_logic;				--1->negative;0->positive
-	dec_out_int:out integer; 		--integer part of dec value
-	dec_out_frac:out integer 		--fractional part of dec value
- );
- end component BIN2DEC;
+    Data: in std_logic_vector(15 downto 0);
+	clk: in std_logic;
+	DataOut: out rational_number(4 downto 0)
+	);
+ end component ConvertToDecimal;
  
  --component for digit encoder for 595
  component DigitEncoder
  port(
-	sign:out std_logic;				--1->negative;0->positive
-	int:out integer; 				--integer part
-	frac:out integer; 				--fractional part
-	
+	temp: in rational_number(4 downto 0);
 	ctrlcode595:out std_logic_vector(95 downto 0)
  );
  end component DigitEncoder;
@@ -84,13 +80,13 @@
  
  begin
 	--utilize digit encoder
-	CB:ComunicateWithB20 PORT MAP (dq,sample);
+	CB:ComunicateWithB20 PORT MAP (DQ,sample,clk);
 	
 	--utilize digit encoder
-	BD:BIN2DEC PORT MAP (bin_value=>sample,sign=>temp_sign,dec_out_int=>temp_int,dec_out_frac=>temp_frac);
+	CD:ConvertToDecimal PORT MAP (sample,clk,temp);
 	
 	--utilize digit encoder
-	DE:DigitEncoder PORT MAP (temp_sign,temp_int,temp_frac,ctrlcode595);
+	DE:DigitEncoder PORT MAP (temp,ctrlcode595);
 	
 	--utilize dataTo595 module
 	DT:dataTo595 PORT MAP (clk,rst,ctrlcode595,din,sck,rck);

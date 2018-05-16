@@ -4,8 +4,8 @@ use  ieee.std_logic_unsigned.all;
 
 entity ComunicateWithB20 is
 port(
-	DQ:		inout 	std_logic 			   := '1'	;
-	Data:	out 	std_logic_vector(15 downto 0) 	;
+	DQ:		inout 	std_logic;
+	Data:	out 	std_logic_vector(15 downto 0);
 	clk:	in 		std_logic
 );
 end entity;
@@ -17,9 +17,9 @@ signal turn:		integer 					:=0 		;
 signal state:		integer range 0 to 3 		:=0 		;
 signal num:			integer range 0 to 16 					;
 --Instruction
-signal ROM_ins: 	std_logic_vector(7 downto 0):="11001100";--CCH
-signal CHG_ins:		std_logic_vector(7 downto 0):="01000100";--44H
-signal READ_ins: 	std_logic_vector(7 downto 0):="10111110";--BEH
+constant ROM_ins: 	std_logic_vector(7 downto 0):="11001100";--CCH
+constant CHG_ins:		std_logic_vector(7 downto 0):="01000100";--44H
+constant READ_ins: 	std_logic_vector(7 downto 0):="10111110";--BEH
 --CLK
 signal us_devide: 	integer range 0 to 11 					;
 signal s_devide:	integer range 0 to 1000000 				;

@@ -1,12 +1,14 @@
  library ieee;                    
  use  ieee.std_logic_1164.all;     
  use  ieee.std_logic_unsigned.all; 
+ use ieee.std_logic_arith.all;
+ use work.my_data_types.all;
   
  entity DigitEncoder is
  port(
-	sign:out std_logic;				--1->negative;0->positive
-	int:out integer; 				--integer part
-	frac:out integer; 				--fractional part	
+	temp: in rational_number(4 downto 0);
+	
+	--mode: in integer;
 	
 	--the control code sent to 595
 	--Each segment requires 16bit serial code:
@@ -42,27 +44,27 @@
  
  begin
  --Get all code and combine them into a series code as ctrlcode595
-	--for hour low
-	ctrlcode595(7 downto 0)<=segmentdecode(0);
+	--for digit0
+	ctrlcode595(7 downto 0)<=segmentdecode(conv_integer(temp(4)));
 	ctrlcode595(15 downto 8)<=enDig(0);
 	
-	--for hour high
-	ctrlcode595(23 downto 16)<=segmentdecode_dp(0);
+	--for digit1
+	ctrlcode595(23 downto 16)<=segmentdecode_dp(conv_integer(temp(3)));
 	ctrlcode595(31 downto 24)<=enDig(1);
 	
-	--for minute low
-	ctrlcode595(39 downto 32)<=segmentdecode(0);
+	--for digit2
+	ctrlcode595(39 downto 32)<=segmentdecode(conv_integer(temp(2)));
 	ctrlcode595(47 downto 40)<=enDig(2);
 	
-	--for minute high
-	ctrlcode595(55 downto 48)<=segmentdecode_dp(0);
+	--for digit3
+	ctrlcode595(55 downto 48)<=segmentdecode(conv_integer(temp(1)));
 	ctrlcode595(63 downto 56)<=enDig(3);
 	
-	--for second low
-	ctrlcode595(71 downto 64)<=segmentdecode(0);
+	--for digit4
+	ctrlcode595(71 downto 64)<=segmentdecode(conv_integer(temp(0)));
 	ctrlcode595(79 downto 72)<=enDig(4);
 	
-	--for second high
-	ctrlcode595(87 downto 80)<=segmentdecode(0);
+	--for digit5
+	ctrlcode595(87 downto 80)<=segmentdecode(12);
 	ctrlcode595(95 downto 88)<=enDig(5);
  end behavior;
