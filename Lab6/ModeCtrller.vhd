@@ -1,15 +1,20 @@
  library ieee;
  use ieee.std_logic_1164.all;
  use ieee.std_logic_unsigned.all;
+ use work.my_data_types.all;
+
  
  entity ModeCtrller is
  port(
-	clk: in std_logic;
+	clk:in std_logic;
 	rst:in std_logic;
 	
-	modekey: in std_logic;
+	modekey:in std_logic;
 	
-	mode: out integer
+	mode:out integer;
+	
+	tempC:in integer_number(4 downto 0);
+	en:out std_logic
  );
  end entity;
  
@@ -56,5 +61,14 @@
 		end if;
 	end process;
 	mode<=mode_cache;
+	
+	process(tempC)
+	begin
+		if (tempC(4)*10+tempC(3)>=30) then
+			en<='1';
+		else 
+			en<='0';
+		end if;
+	end process;
  
  end behavior;

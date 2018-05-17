@@ -15,6 +15,8 @@
 	
 	mode_key:in std_logic;
 	
+	beep: out std_logic;
+	
 	DQ:inout std_logic;		--bus connecting step and DS18B20
 		
 	din:out std_logic;		--data stream to 595
@@ -31,6 +33,7 @@
  signal tempC: integer_number(4 downto 0);
  signal tempF: integer_number(4 downto 0);
  signal mode: integer;
+ signal en: std_logic;
  
  --the control code sent to 595
  --Each segment requires 16bit serial code:
@@ -98,14 +101,27 @@
  --component for mode controller
  component ModeCtrller is
  port(
-	clk: in std_logic;
+	clk:in std_logic;
 	rst:in std_logic;
 	
-	modekey: in std_logic;
+	modekey:in std_logic;
 	
-	mode: out integer
+	mode:out integer;
+	
+	tempC:in integer_number(4 downto 0);
+	en:out std_logic
  );
  end component ModeCtrller;
+ 
+ --component for beep controller
+ component BeepCtrller is
+	port(
+		clk:in std_logic;	--12MHz clock
+		en:in std_logic;
+		beep:out std_logic
+	);
+ end component BeepCtrller;
+
  
  ---------------------End Components Declaration------------------------
  
@@ -126,6 +142,9 @@
 	DT:dataTo595 PORT MAP (clk,rst,ctrlcode595,din,sck,rck);
 	
 	--utilize mode controller
-	MC:ModeCtrller PORT MAP (clk,rst,mode_key,mode);
+	MC:ModeCtrller PORT MAP (clk,rst,mode_key,mode,tempC,en);
+	
+	--utilize beep
+	BC:BeepCtrller PORT MAP (clk,en,beep);
 	
  end behavior;

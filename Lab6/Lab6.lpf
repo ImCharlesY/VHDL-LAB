@@ -6,6 +6,8 @@ LOCATE COMP "rst" SITE "L14";
 
 LOCATE COMP "mode_key" SITE "M13";
 
+LOCATE COMP "beep" SITE "P13";
+
 LOCATE COMP "DQ" SITE "H12";
 
 LOCATE COMP "sck" SITE "J2";
