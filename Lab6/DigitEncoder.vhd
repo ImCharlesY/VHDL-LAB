@@ -6,9 +6,10 @@
   
  entity DigitEncoder is
  port(
-	temp: in rational_number(4 downto 0);
+	tempC: in integer_number(4 downto 0);
+	tempF: in integer_number(4 downto 0);
 	
-	--mode: in integer;
+	mode: in integer range 0 to 1;
 	
 	--the control code sent to 595
 	--Each segment requires 16bit serial code:
@@ -19,7 +20,14 @@
  end DigitEncoder;
  
  architecture behavior of DigitEncoder is
+ -----------------------Signals Declaration-------------------
+ signal temp: integer_number(4 downto 0);
+ ---------------------End Signals Declaration-----------------	
  ------------------Constant Table Declaration---------------
+ type TwoDim_Array_Int is array(natural range <>) of integer;		--define 2D array
+ 
+ constant digit5:TwoDim_Array_Int(0 to 1):=(12,15);
+ 
  type TwoDim_Array is array(natural range <>) of std_logic_vector(7 downto 0);		--define 2D array
 
  constant enDig:TwoDim_Array(0 to 6):=(		--enable each digit
@@ -41,30 +49,50 @@
  "10011101","01111011","10011111","10001111",
  "00000000");
  ---------------------End Table Declaration-----------------
- 
+
  begin
- --Get all code and combine them into a series code as ctrlcode595
-	--for digit0
-	ctrlcode595(7 downto 0)<=segmentdecode(conv_integer(temp(4)));
-	ctrlcode595(15 downto 8)<=enDig(0);
-	
-	--for digit1
-	ctrlcode595(23 downto 16)<=segmentdecode_dp(conv_integer(temp(3)));
-	ctrlcode595(31 downto 24)<=enDig(1);
-	
-	--for digit2
-	ctrlcode595(39 downto 32)<=segmentdecode(conv_integer(temp(2)));
-	ctrlcode595(47 downto 40)<=enDig(2);
-	
-	--for digit3
-	ctrlcode595(55 downto 48)<=segmentdecode(conv_integer(temp(1)));
-	ctrlcode595(63 downto 56)<=enDig(3);
-	
-	--for digit4
-	ctrlcode595(71 downto 64)<=segmentdecode(conv_integer(temp(0)));
-	ctrlcode595(79 downto 72)<=enDig(4);
-	
-	--for digit5
-	ctrlcode595(87 downto 80)<=segmentdecode(12);
-	ctrlcode595(95 downto 88)<=enDig(5);
+	process
+	begin
+		if (mode=0) then
+			temp<=tempC;
+		else	
+			temp<=tempF;
+		end if;
+		--Get all code and combine them into a series code as ctrlcode595
+		--for digit0
+		if (temp(4)=0) then
+			ctrlcode595(7 downto 0)<=segmentdecode(16);
+		else
+			ctrlcode595(7 downto 0)<=segmentdecode(temp(4));
+		end if;
+		ctrlcode595(15 downto 8)<=enDig(0);
+		
+		--for digit1
+		if (mode=0) then
+			ctrlcode595(23 downto 16)<=segmentdecode_dp(temp(3));
+		else
+			ctrlcode595(23 downto 16)<=segmentdecode(temp(3));
+		end if;
+		ctrlcode595(31 downto 24)<=enDig(1);
+		
+		--for digit2
+		if (mode=0) then
+			ctrlcode595(39 downto 32)<=segmentdecode(temp(2));
+		else
+			ctrlcode595(39 downto 32)<=segmentdecode_dp(temp(2));
+		end if;
+		ctrlcode595(47 downto 40)<=enDig(2);
+		
+		--for digit3
+		ctrlcode595(55 downto 48)<=segmentdecode(temp(1));
+		ctrlcode595(63 downto 56)<=enDig(3);
+		
+		--for digit4
+		ctrlcode595(71 downto 64)<=segmentdecode(temp(0));
+		ctrlcode595(79 downto 72)<=enDig(4);
+		
+		--for digit5
+		ctrlcode595(87 downto 80)<=segmentdecode(digit5(mode));
+		ctrlcode595(95 downto 88)<=enDig(5);
+	end process;
  end behavior;

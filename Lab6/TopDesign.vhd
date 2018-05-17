@@ -1,6 +1,7 @@
  library ieee;                    
  use  ieee.std_logic_1164.all;     
  use  ieee.std_logic_unsigned.all; 
+ use ieee.std_logic_arith.all;
  use work.my_data_types.all;
  
  ------------------------------------------
@@ -11,6 +12,8 @@
  port(
 	clk:in std_logic;		--12MHz clock
 	rst:in std_logic;
+	
+	mode_key:in std_logic;
 	
 	DQ:inout std_logic;		--bus connecting step and DS18B20
 		
@@ -25,7 +28,9 @@
  architecture behavior of TemperatureSensor is
  -----------------------Signals Declaration-------------------
  signal sample: std_logic_vector(15 downto 0);	-- sample value from DS18B20
- signal temp: rational_number(4 downto 0);
+ signal tempC: integer_number(4 downto 0);
+ signal tempF: integer_number(4 downto 0);
+ signal mode: integer;
  
  --the control code sent to 595
  --Each segment requires 16bit serial code:
@@ -46,18 +51,32 @@
  end component ComunicateWithB20;
  
  --component for BIN2DEC
- component ConvertToDecimal
+ component ConvertToCelsius
  port(
     Data: in std_logic_vector(15 downto 0);
 	clk: in std_logic;
-	DataOut: out rational_number(4 downto 0)
+	--DataLastBit:out integer;
+	DataOut: out integer_number(4 downto 0)
 	);
- end component ConvertToDecimal;
+ end component ConvertToCelsius;
+ 
+ --component for BIN2DEC
+ component ConvertToFahrenheit is
+ port(
+    DataOut: in integer_number(4 downto 0);
+	clk: in std_logic;
+	DataF: out integer_number(4 downto 0)
+	);
+ end component ConvertToFahrenheit;
  
  --component for digit encoder for 595
  component DigitEncoder
  port(
-	temp: in rational_number(4 downto 0);
+	tempC: in integer_number(4 downto 0);
+	tempF: in integer_number(4 downto 0);
+	
+	mode: in integer range 0 to 1;
+	
 	ctrlcode595:out std_logic_vector(95 downto 0)
  );
  end component DigitEncoder;
@@ -76,19 +95,37 @@
  );
  end component dataTo595;
  
+ --component for mode controller
+ component ModeCtrller is
+ port(
+	clk: in std_logic;
+	rst:in std_logic;
+	
+	modekey: in std_logic;
+	
+	mode: out integer
+ );
+ end component ModeCtrller;
+ 
  ---------------------End Components Declaration------------------------
  
  begin
-	--utilize digit encoder
+	--utilize Comunication with B20
 	CB:ComunicateWithB20 PORT MAP (DQ,sample,clk);
 	
-	--utilize digit encoder
-	CD:ConvertToDecimal PORT MAP (sample,clk,temp);
+	--utilize encoder
+	CC:ConvertToCelsius PORT MAP (sample,clk,tempC);
+	
+	--utilize encoder
+	CF:ConvertToFahrenheit PORT MAP (tempC,clk,tempF);
 	
 	--utilize digit encoder
-	DE:DigitEncoder PORT MAP (temp,ctrlcode595);
+	DE:DigitEncoder PORT MAP (tempC,tempF,mode,ctrlcode595);
 	
 	--utilize dataTo595 module
 	DT:dataTo595 PORT MAP (clk,rst,ctrlcode595,din,sck,rck);
+	
+	--utilize mode controller
+	MC:ModeCtrller PORT MAP (clk,rst,mode_key,mode);
 	
  end behavior;

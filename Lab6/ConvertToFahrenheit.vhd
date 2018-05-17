@@ -7,16 +7,15 @@ use work.my_data_types.all;
 entity ConvertToFahrenheit is
 port(
     DataOut: in integer_number(4 downto 0);
-	DataLastBit: in integer;
 	clk: in std_logic;
 	DataF: out integer_number(4 downto 0)
-
 	);
 end entity;
 
 architecture behavior of ConvertToFahrenheit is
 
 -----signal declaration
+signal DataLastBit:integer;
 signal Fahrenheit:integer:=0;
 signal da,db,dc,dd,de,df,dg,dh:std_logic_vector(3 downto 0);
 
@@ -43,7 +42,7 @@ signal da3_1,da2_1,da1_1,da0_1: integer;
 -----end signal declaration
 
 begin
-    Fahrenheit<=DataOut(4)*1800000+DataOut(3)*180000+DataOut(2)*18000+DataOut(1)*1800+DataOut(0)*180+DataLastBit*18+320000;
+    Fahrenheit<=DataOut(4)*1800000+DataOut(3)*180000+DataOut(2)*18000+DataOut(1)*1800+DataOut(0)*180+DataLastBit*18+3200000;
 	
 process(clk)
 variable tmp: integer range 0 to 99999999:=0;
@@ -148,7 +147,7 @@ begin
 			 dg0_1<=conv_integer(dg0);
 		     DataF(3)<=(dg3_1*8+dg2_1*4+dg1_1*2+dg0_1);
 			
-			dh3<=dh(3);
+			 df3<=df(3);
 			 df3_1<=conv_integer(df3);
 			 df2<=df(2);
 			 df2_1<=conv_integer(df2);
