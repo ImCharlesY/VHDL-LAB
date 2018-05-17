@@ -9,7 +9,8 @@ entity ConvertToDecimal is
 port(
     Data: in std_logic_vector(15 downto 0);
 	clk: in std_logic;
-	DataOut: out rational_number(4 downto 0)
+	DataLastBit:out integer;
+	DataOut: out integer_number(4 downto 0)
 	--DataOut_integer: out integer;
 	--DataOut_decimal: out integer;
 	);
@@ -48,7 +49,22 @@ signal Data9: std_logic;
 signal Data10: std_logic;
 
 signal da,db:std_logic_vector(3 downto 0);
+signal db3,db2,db1,db0: std_logic;
+signal db3_1,db2_1,db1_1,db0_1: integer;
+signal da3,da2,da1,da0: std_logic;
+signal da3_1,da2_1,da1_1,da0_1: integer;
+
+
 signal d1,d2,d3,d4:std_logic_vector(3 downto 0);
+signal d13,d12,d11,d10: std_logic;
+signal d13_1,d12_1,d11_1,d10_1: integer;
+signal d23,d22,d21,d20: std_logic;
+signal d23_1,d22_1,d21_1,d20_1: integer;
+signal d33,d32,d31,d30: std_logic;
+signal d33_1,d32_1,d31_1,d30_1: integer;
+signal d43,d42,d41,d40: std_logic;
+signal d43_1,d42_1,d41_1,d40_1: integer;
+
 
 
 
@@ -110,14 +126,35 @@ begin
 			     tmp:=tmp+1;
 			end if;
 		else 
-		     DataOut(4)<=db;
-		     DataOut(3)<=da;
+		     db3<=db(3);
+			 db3_1<=conv_integer(db3);
+			 db2<=db(2);
+			 db2_1<=conv_integer(db2);
+			 db1<=db(1);
+			 db1_1<=conv_integer(db1);
+			 db0<=db(0);
+			 db0_1<=conv_integer(db0);
+		     DataOut(4)<=(db3_1*8+db2_1*4+db1_1*2+db0_1);
+			 
+			 da3<=da(3);
+			 da3_1<=conv_integer(da3);
+			 da2<=da(2);
+			 da2_1<=conv_integer(da2);
+			 da1<=da(1);
+			 da1_1<=conv_integer(da1);
+			 da0<=da(0);
+			 da0_1<=conv_integer(da0);
+		     DataOut(3)<=(da3_1*8+da2_1*4+da1_1*2+da0_1);
+
 		     da<="0000";
 		     db<="0000";
 			 tmp:=0;
 		end if;
 	end if;
 end process;
+
+
+
 
 ---connvert DataOut_decimal to DataOut(2),DataOut(1)&DataOut(0) in std_logic_vector form
 process(clk)
@@ -152,9 +189,51 @@ begin
 			end if;
 		else
 		    tmp1:=0;
-			DataOut(2)<=d4;
-			DataOut(1)<=d3;
-			DataOut(0)<=d2;
+			 d43<=d4(3);
+			 d43_1<=conv_integer(d43);
+			 d42<=d4(2);
+			 d42_1<=conv_integer(d42);
+			 d41<=d4(1);
+			 d41_1<=conv_integer(d41);
+			 d40<=d4(0);
+			 d40_1<=conv_integer(d40);
+		     DataOut(2)<=(d43_1*8+d42_1*4+d41_1*2+d40_1);
+			 
+			 d33<=d3(3);
+			 d33_1<=conv_integer(d33);
+			 d32<=d3(2);
+			 d32_1<=conv_integer(d32);
+			 d31<=d3(1);
+			 d31_1<=conv_integer(d31);
+			 d30<=d3(0);
+			 d30_1<=conv_integer(d30);
+		     DataOut(1)<=(d33_1*8+d32_1*4+d31_1*2+d30_1);
+			 
+			 d23<=d2(3);
+			 d23_1<=conv_integer(d23);
+			 d22<=d2(2);
+			 d22_1<=conv_integer(d22);
+			 d21<=d2(1);
+			 d21_1<=conv_integer(d21);
+			 d20<=d2(0);
+			 d20_1<=conv_integer(d20);
+		     DataOut(0)<=(d23_1*8+d22_1*4+d21_1*2+d20_1);
+			
+			--DataOut(2)<=d4;
+			--DataOut(1)<=d3;
+			--DataOut(0)<=d2;
+			
+			 d13<=d1(3);
+			 d13_1<=conv_integer(d13);
+			 d12<=d1(2);
+			 d12_1<=conv_integer(d12);
+			 d11<=d1(1);
+			 d11_1<=conv_integer(d11);
+			 d10<=d1(0);
+			 d10_1<=conv_integer(d10);
+		     DataLastBit <=(d13_1*8+d12_1*4+d11_1*2+d10_1);
+			
+			
 			d1<="0000";
 			d2<="0000";
 			d3<="0000";
