@@ -6,14 +6,14 @@ use ieee.std_logic_unsigned.all;
 entity PWM is
          
 port(
-     rst_n:in std_logic; 
+     rst_n:in std_logic; -- key for reset
      clk:in std_logic; 
-     key_menu: in std_logic;
-	 key_up: in std_logic;
-	 key_down: in std_logic;
-	 menu_state: buffer std_logic;
-     pulse_out:buffer std_logic;
-	 display:out std_logic
+     key_menu: in std_logic;----key to change mode
+     key_up: in std_logic;------key to change duty or cycle
+     key_down: in std_logic;------key to change duty or cycle
+     menu_state: buffer std_logic;
+     pulse_out:buffer std_logic;----connect to LED to get the breathing condition
+     display:out std_logic
 );
 
 end entity PWM;
@@ -34,6 +34,8 @@ signal key_down1:std_logic;
 signal key_up1_ls:std_logic;
 signal key_down1_ls:std_logic;
 
+
+----消抖模块的调用
 component CycleSampler
  port(
 	clk: in std_logic;
@@ -49,6 +51,7 @@ P1:CycleSampler port map(clk,key_menu,key_menu1);
 P2:CycleSampler port map(clk,key_up,key_up1);
 P3:CycleSampler port map(clk,key_down,key_down1);
 
+-----分频，将12MHz分频为60kHz
 process(clk)
 variable count0: integer range 0 to 200;
 begin
@@ -60,7 +63,9 @@ begin
 		 end if;
 	 end if;
 end process;
-
+		 
+		 
+----为了之后同时在一个process中检测两个信号的边沿
 process(clk)
 begin
     if(clk'event and clk='1') then
@@ -69,7 +74,7 @@ begin
 	end if;
 end process;
 
----cnt1
+---锯齿形脉冲cnt1的产生
 process(clk0,rst_n,duty_pulse,cycle_pulse)
 begin 
 case duty_pulse is
@@ -88,7 +93,7 @@ end case;
 	 end if;
 end process;
 
-
+-----三角脉冲cnt2的产生
 process(clk0,rst_n,cycle_pulse)
 variable direction: std_logic;
 begin
@@ -115,8 +120,7 @@ end case;
 end process;
 
 
----compare cnt1&cnt2
-
+---cnt1&cnt2的比较
 process(cnt1,cnt2,clk0)
 begin
     if(clk0'event and clk0='0') then
@@ -128,6 +132,7 @@ begin
 	end if;
 end process;
 
+----按下key_menu键，对于menu_state进行切换，对于模式进行更改
 process(key_menu1,rst_n)
 begin
     if(rst_n='0') then
@@ -137,7 +142,7 @@ begin
 	end if;
 end process;
 
-
+-----按下reset的按键，将其还原至零状态；在按下key_up和key_down的时候对于cycle和dt进行修改
 process(clk,rst_n)
 begin
 	if(rst_n='0') then
