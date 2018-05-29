@@ -6,8 +6,8 @@
  entity BeepCtrller is
 	port(
 		clk:in std_logic;	--12MHz clock
-		en:in std_logic;
-		beep:out std_logic
+		en:in std_logic;	--Alarm enable
+		beep:out std_logic	--PWM output
 	);
  end BeepCtrller;
  
@@ -20,10 +20,10 @@ signal div_clk_ls:std_logic;
 signal tune_change_cnt:integer;
 signal pwm_out:std_logic;
 signal pwm_cnt:integer;
-signal cycle:integer;
-signal tune:integer;
+signal cycle:integer;			--Cycle of PWM
+signal tune:integer;			--Frequency of PWM 
 
-type intarr is array(natural range <>) of integer;
+type intarr is array(natural range <>) of integer;	--define array of integer
 constant freq:intarr(1 to 16):=(
 	523,587,659,698,784,880,988,1046,1175,1318,1397,1568,1750,1967,2093,2349
 );
@@ -31,7 +31,7 @@ constant freq:intarr(1 to 16):=(
 
  begin
 	
-	process(clk)	--generate 1MHz Clock
+	process(clk)	--generate 1MHz Clock, used as PWM clock source
 	begin 
 		if(rising_edge(clk)) then
 			div_clk_cnt<=div_clk_cnt+1;
@@ -49,7 +49,7 @@ constant freq:intarr(1 to 16):=(
 		end if;
 	end process;
 	
-	process(clk)
+	process(clk)		--change tune per 6000000 system clock(0.5s)
 	begin
 		if(rising_edge(clk)) then
 			tune_change_cnt<=tune_change_cnt+1;
@@ -65,7 +65,7 @@ constant freq:intarr(1 to 16):=(
 		end if;
 	end process;
 	
-	process(tune)	--set cycle
+	process(tune)	--set PWM cycle
 	begin 
 		if(tune>0 and tune<17) then
 			cycle<=500000/freq(tune);
@@ -91,7 +91,7 @@ constant freq:intarr(1 to 16):=(
 		end if;
 	end process;
 	
-	process(en)
+	process(en)		--If alarm enable, output the PWM
 	begin
 		if (en='1') then
 			beep<=pwm_out;

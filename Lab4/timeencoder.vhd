@@ -1,9 +1,6 @@
  library ieee;                    
  use  ieee.std_logic_1164.all;     
  use  ieee.std_logic_unsigned.all; 
- 
-  --this entity implements clock divider
-  --generating 1sec clock
   
  entity TimeEncoder is
  port(
