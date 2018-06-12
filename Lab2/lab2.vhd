@@ -3,8 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-entity PWM is
-         
+entity PWM is        
 port(
      rst_n:in std_logic; -- key for reset
      clk:in std_logic; 
@@ -15,11 +14,9 @@ port(
      pulse_out:buffer std_logic;----connect to LED to get the breathing condition
      display:out std_logic
 );
-
 end entity PWM;
 
 architecture behavior of PWM is
-
 
 signal clk0:std_logic;
 signal cnt1:integer range 0 to 80000;
@@ -34,7 +31,6 @@ signal key_down1:std_logic;
 signal key_up1_ls:std_logic;
 signal key_down1_ls:std_logic;
 
-
 ----消抖模块的调用
 component CycleSampler
  port(
@@ -42,11 +38,9 @@ component CycleSampler
 	btnstate: in std_logic;
 	keystate: out std_logic
 	);
-
 end component CycleSampler;
 
 begin
-
 P1:CycleSampler port map(clk,key_menu,key_menu1);
 P2:CycleSampler port map(clk,key_up,key_up1);
 P3:CycleSampler port map(clk,key_down,key_down1);
@@ -63,8 +57,7 @@ begin
 		 end if;
 	 end if;
 end process;
-		 
-		 
+		 		 
 ----为了之后同时在一个process中检测两个信号的边沿
 process(clk)
 begin
@@ -118,7 +111,6 @@ end case;
 		end if;
 	end if;
 end process;
-
 
 ---cnt1&cnt2的比较
 process(cnt1,cnt2,clk0)
